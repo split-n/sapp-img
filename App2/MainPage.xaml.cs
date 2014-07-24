@@ -40,12 +40,17 @@ namespace App2
         {
             get { return this.navigationHelper; }
         }
-
-        private Point prevPoint;
-
+        private Stack<List<UIElement>> undoStack = new Stack<List<UIElement>>(); 
+         
 
         private EventHandler<object> layoutChanged;
+
+        private Point prevPoint;
         private uint paintingPointerId;
+        private bool isStampMode;
+
+        private List<UIElement> currentElements;
+        
 
         public MainPage()
         {
@@ -119,8 +124,28 @@ namespace App2
 
             var pt = e.GetCurrentPoint(InkCanvas);
             if (pt.Properties.IsRightButtonPressed) return;
+
+            if (isStampMode)
+            {
+                var uri = new Uri("ms-appx:///Assets/image_blue.png");
+                var file = StorageFile.GetFileFromApplicationUriAsync(uri);
+                var bimg = new BitmapImage(file) {
+                    DecodePixelHeight = 100,
+                    DecodePixelWidth = 100,
+\\
+                };
+                var img = new Image {
+                    Source = bimg
+                };
+                InkCanvas.Children.Add(img);
+                img.SetValue(Canvas.LeftProperty, pt.Position.X);
+                img.SetValue(Canvas.TopProperty, pt.Position.Y);
+                return;
+            }
+
             prevPoint = pt.Position;
             paintingPointerId = pt.PointerId;
+            currentElements =  new List<UIElement>();
             e.Handled = true;
 
         }
@@ -130,6 +155,7 @@ namespace App2
             imageAndCanvasSizeAdjust();
         }
 
+        // 画像とInkCanvasの表示サイズを調整する
         private void imageAndCanvasSizeAdjust()
         {
             var imgSrc = (BitmapImage)image.Source;
@@ -163,6 +189,7 @@ namespace App2
                     };
 
                     InkCanvas.Children.Add(line);
+                    currentElements.Add(line);
                     prevPoint = currPoint;
 
                     e.Handled = true;
@@ -172,12 +199,21 @@ namespace App2
 
         private void InkCanvas_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
+            var pt = e.GetCurrentPoint(InkCanvas);
+            //if (pt.Properties.IsRightButtonPressed) return; これでは右クリックかどうかは判別できない
+            if (paintingPointerId == 0) // 線描画中ではない場合
+            {
+                return;
+            }
             paintingPointerId = 0;
+            undoStack.Push(currentElements);
+            currentElements = null;
             e.Handled = true;
         }
 
-        private async void Button_Tapped(object sender, TappedRoutedEventArgs e)
+        private async void saveTapped(object sender, TappedRoutedEventArgs e)
         {
+            // 背景画像と同サイズで保存する
             RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap();
             await renderTargetBitmap.RenderAsync(this.InkCanvas);
             
@@ -197,7 +233,7 @@ namespace App2
                 return;
 
 
-
+            
 
             // Encode the image to the selected file on disk
             using (var fileStream = await saveFile.OpenAsync(FileAccessMode.ReadWrite))
@@ -216,6 +252,34 @@ namespace App2
 
                 await encoder.FlushAsync();
             }
+        }
+
+        private void undoTapped(object sender, TappedRoutedEventArgs e)
+        {
+            var target = undoStack.Pop();
+            foreach (var elem in target)
+            {
+                InkCanvas.Children.Remove(elem);
+            }
+            
+        }
+
+        // InkCanvas内のLineとImageを削除する
+        private void removeAllTapped(object sender, TappedRoutedEventArgs e)
+        {
+            
+            var lines = InkCanvas.Children.OfType<Line>().ToArray();
+            var stamps = InkCanvas.Children.OfType<Image>().ToArray();
+            foreach (var elem in lines.Union<UIElement>(stamps))
+            {
+                InkCanvas.Children.Remove(elem);
+            }
+            undoStack.Clear();
+        }
+
+        private void putStampModeToggle(object sender, TappedRoutedEventArgs e)
+        {
+            isStampMode = !isStampMode;
         }
     }
 }

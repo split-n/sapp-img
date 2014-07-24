@@ -14,7 +14,12 @@
 
     <Page.TopAppBar>
         <AppBar>
-            <Button Tapped="Button_Tapped">Save</Button>
+            <StackPanel Orientation="Horizontal">
+                <Button Tapped="saveTapped">Save</Button>
+                <Button Tapped="undoTapped">Undo</Button>
+                <Button Tapped="removeAllTapped">Clear</Button>
+                <Button Tapped="putStampModeToggle">Stamp</Button>
+            </StackPanel>
         </AppBar>
     </Page.TopAppBar>
     <Grid>
