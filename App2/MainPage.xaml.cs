@@ -128,11 +128,9 @@ namespace App2
             if (isStampMode)
             {
                 var uri = new Uri("ms-appx:///Assets/image_blue.png");
-                var file = StorageFile.GetFileFromApplicationUriAsync(uri);
-                var bimg = new BitmapImage(file) {
+                var bimg = new BitmapImage(uri){
                     DecodePixelHeight = 100,
                     DecodePixelWidth = 100,
-\\
                 };
                 var img = new Image {
                     Source = bimg
