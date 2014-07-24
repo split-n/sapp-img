@@ -21,11 +21,10 @@
         * Row 1 contains the rest of the page layout
     -->
     <Grid>
-        <Grid x:Name="canvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <Grid.Background>
-                <ImageBrush x:Name="image" Stretch="Uniform" ImageSource="http://kyotonotabi.c.blog.so-net.ne.jp/_images/blog/_d02/kyotonotabi/E4BC8FE8A68BE7A8B2E88DB7E5A4A7E7A4BE20E58D83E69CACE9B3A5E5B185.JPG?c=a3"/>
-            </Grid.Background>
-            <Canvas Canvas.ZIndex="10" x:Name="InkCanvas" Height="{Binding ActualHeight, ElementName=image, Mode=OneWay}" Width="{Binding , ElementName=image, Mode=OneWay}"  PointerEntered="InkCanvas_PointerEntered" PointerPressed="InkCanvas_PointerPressed" Background="#7F000000"/>
-        </Grid>
+        <Canvas x:Name="container" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <!-- Background="#00000000" は必須 -->
+            <Canvas Canvas.Top="0" Canvas.Left="0" Canvas.ZIndex="10" x:Name="InkCanvas" PointerEntered="InkCanvas_PointerEntered" PointerPressed="InkCanvas_PointerPressed" Background="#00000000"/>
+            <Image Canvas.Top="0" Canvas.Left="0" x:Name="image" Stretch="Uniform" Source="http://kyotonotabi.c.blog.so-net.ne.jp/_images/blog/_d02/kyotonotabi/E4BC8FE8A68BE7A8B2E88DB7E5A4A7E7A4BE20E58D83E69CACE9B3A5E5B185.JPG?c=a3" ImageOpened="image_ImageOpened" DoubleTapped="image_DoubleTapped"/>
+        </Canvas>
     </Grid>
 </Page>

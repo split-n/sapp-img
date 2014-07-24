@@ -1,4 +1,5 @@
-﻿using App2.Common;
+﻿using Windows.UI.Xaml.Media.Imaging;
+using App2.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -109,6 +110,27 @@ namespace App2
         }
 
         private void InkCanvas_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+
+        }
+
+        private void image_ImageOpened(object sender, RoutedEventArgs e)
+        {
+            imageAndCanvasSizeAdjust();
+        }
+
+        private void imageAndCanvasSizeAdjust()
+        {
+            var imgSrc = (BitmapImage)image.Source;
+            var hfactor = container.ActualHeight / imgSrc.PixelHeight;
+            var wfactor = container.ActualWidth / imgSrc.PixelWidth;
+            
+            var minfactor = Math.Min(hfactor, wfactor);
+            InkCanvas.Height = image.Height = imgSrc.PixelHeight * minfactor;
+            InkCanvas.Width =  image.Width = imgSrc.PixelWidth * minfactor;
+        }
+
+        private void image_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
 
         }
