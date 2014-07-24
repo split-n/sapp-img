@@ -26,16 +26,6 @@ namespace App2
     {
 
         private NavigationHelper navigationHelper;
-        private ObservableDictionary defaultViewModel = new ObservableDictionary();
-
-        /// <summary>
-        /// これは厳密に型指定されたビュー モデルに変更できます。
-        /// </summary>
-        public ObservableDictionary DefaultViewModel
-        {
-            get { return this.defaultViewModel; }
-        }
-
         /// <summary>
         /// NavigationHelper は、ナビゲーションおよびプロセス継続時間管理を
         /// 支援するために、各ページで使用します。
