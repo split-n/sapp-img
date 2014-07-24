@@ -12,11 +12,16 @@
     <Page.Resources>
     </Page.Resources>
 
+    <Page.TopAppBar>
+        <AppBar>
+            <Button Tapped="Button_Tapped">Save</Button>
+        </AppBar>
+    </Page.TopAppBar>
     <Grid>
         <Canvas x:Name="container" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <!-- Background="#00000000" は必須 -->
-            <Canvas Canvas.Top="0" Canvas.Left="0" Canvas.ZIndex="10" x:Name="InkCanvas" PointerEntered="InkCanvas_PointerEntered" PointerPressed="InkCanvas_PointerPressed" Background="#00000000"/>
-            <Image Canvas.Top="0" Canvas.Left="0" x:Name="image" Stretch="Uniform" ImageOpened="image_ImageOpened" DoubleTapped="image_DoubleTapped"/>
+            <Canvas Canvas.Top="0" Canvas.Left="0" Canvas.ZIndex="10" x:Name="InkCanvas" PointerPressed="InkCanvas_PointerPressed" Background="#00000000" PointerMoved="InkCanvas_PointerMoved" PointerReleased="InkCanvas_PointerReleased"/>
+            <Image Canvas.Top="0" Canvas.Left="0" x:Name="image" Stretch="Uniform" ImageOpened="image_ImageOpened"/>
         </Canvas>
     </Grid>
 </Page>

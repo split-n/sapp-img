@@ -1,4 +1,10 @@
-﻿using Windows.UI.Xaml.Media.Imaging;
+﻿using Windows.Devices.Input;
+using Windows.Graphics.Display;
+using Windows.Graphics.Imaging;
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml.Shapes;
 using App2.Common;
 using System;
 using System.Collections.Generic;
@@ -39,6 +45,8 @@ namespace App2
 
 
         private EventHandler<object> layoutChanged;
+        private uint paintingPointerId;
+
         public MainPage()
         {
             this.InitializeComponent();
@@ -106,13 +114,14 @@ namespace App2
 
         #endregion
 
-        private void InkCanvas_PointerEntered(object sender, PointerRoutedEventArgs e)
-        {
-
-        }
-
         private void InkCanvas_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
+
+            var pt = e.GetCurrentPoint(InkCanvas);
+            if (pt.Properties.IsRightButtonPressed) return;
+            prevPoint = pt.Position;
+            paintingPointerId = pt.PointerId;
+            e.Handled = true;
 
         }
 
@@ -127,15 +136,86 @@ namespace App2
             var c = container;
             var hfactor = container.ActualHeight / imgSrc.PixelHeight;
             var wfactor = container.ActualWidth / imgSrc.PixelWidth;
-            
+
             var minfactor = Math.Min(hfactor, wfactor);
             InkCanvas.Height = image.Height = imgSrc.PixelHeight * minfactor;
-            InkCanvas.Width =  image.Width = imgSrc.PixelWidth * minfactor;
+            InkCanvas.Width = image.Width = imgSrc.PixelWidth * minfactor;
         }
 
-        private void image_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
-        {
 
+
+        private void InkCanvas_PointerMoved(object sender, PointerRoutedEventArgs e)
+        {
+            var pt = e.GetCurrentPoint(InkCanvas);
+            if (pt.PointerId == paintingPointerId)
+            {
+                var currPoint = pt.Position;
+                if (prevPoint != currPoint)
+                {
+                    var line = new Line {
+                        X1 = prevPoint.X,
+                        Y1 = prevPoint.Y,
+                        X2 = currPoint.X,
+                        Y2 = currPoint.Y,
+                        StrokeThickness = 7.0,
+                        StrokeStartLineCap = PenLineCap.Round,
+                        Stroke = new SolidColorBrush(Windows.UI.Colors.Red)
+                    };
+
+                    InkCanvas.Children.Add(line);
+                    prevPoint = currPoint;
+
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void InkCanvas_PointerReleased(object sender, PointerRoutedEventArgs e)
+        {
+            paintingPointerId = 0;
+            e.Handled = true;
+        }
+
+        private async void Button_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap();
+            await renderTargetBitmap.RenderAsync(this.InkCanvas);
+            
+            var pixelBuffer = await renderTargetBitmap.GetPixelsAsync();
+
+            var savePicker = new FileSavePicker();
+            savePicker.DefaultFileExtension = ".png";
+            savePicker.FileTypeChoices.Add(".png", new List<string> { ".png" });
+            savePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+            savePicker.SuggestedFileName = "snapshot.png";
+
+            // Prompt the user to select a file
+            var saveFile = await savePicker.PickSaveFileAsync();
+
+            // Verify the user selected a file
+            if (saveFile == null)
+                return;
+
+
+
+
+            // Encode the image to the selected file on disk
+            using (var fileStream = await saveFile.OpenAsync(FileAccessMode.ReadWrite))
+            {
+                var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, fileStream);
+
+                encoder.SetPixelData(
+                    BitmapPixelFormat.Bgra8,
+                    BitmapAlphaMode.Premultiplied, // http://compojigoku.blog.fc2.com/blog-entry-5.html
+                    (uint)renderTargetBitmap.PixelWidth,
+                    (uint)renderTargetBitmap.PixelHeight,
+                    DisplayInformation.GetForCurrentView().LogicalDpi,
+                    DisplayInformation.GetForCurrentView().LogicalDpi,
+                    pixelBuffer.ToArray()
+                    );
+
+                await encoder.FlushAsync();
+            }
         }
     }
 }
