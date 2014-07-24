@@ -57,6 +57,10 @@ namespace App2
         /// セッション。ページに初めてアクセスするとき、状態は null になります。</param>
         private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
+            image.Source =
+                new BitmapImage(
+                    new Uri(
+                        "http://kyotonotabi.c.blog.so-net.ne.jp/_images/blog/_d02/kyotonotabi/E4BC8FE8A68BE7A8B2E88DB7E5A4A7E7A4BE20E58D83E69CACE9B3A5E5B185.JPG?c=a3"));
         }
 
         /// <summary>
