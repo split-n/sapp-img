@@ -21,11 +21,9 @@
         * Row 1 contains the rest of the page layout
     -->
     <Grid>
-        <Canvas>
-            <Canvas.Background>
-                <ImageBrush Stretch="Uniform" ImageSource="http://kyotonotabi.c.blog.so-net.ne.jp/_images/blog/_d02/kyotonotabi/E4BC8FE8A68BE7A8B2E88DB7E5A4A7E7A4BE20E58D83E69CACE9B3A5E5B185.JPG?c=a3"/>
-            </Canvas.Background>
-            <Canvas Canvas.ZIndex="10" x:Name="InkCanvas" Height="{Binding ActualHeight, ElementName=canvas, Mode=OneWay}" Width="{Binding ActualWidth, ElementName=canvas, Mode=OneWay}" PointerEntered="InkCanvas_PointerEntered" Background="#00FFFFFF" PointerPressed="InkCanvas_PointerPressed"/>
+        <Canvas x:Name="canvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Image x:Name="image" Source="http://kyotonotabi.c.blog.so-net.ne.jp/_images/blog/_d02/kyotonotabi/E4BC8FE8A68BE7A8B2E88DB7E5A4A7E7A4BE20E58D83E69CACE9B3A5E5B185.JPG?c=a3" Height="{Binding ActualHeight, ElementName=canvas, Mode=OneWay}" Width="{Binding ActualWidth, ElementName=canvas, Mode=OneWay}"/>
+            <Canvas Canvas.ZIndex="10" x:Name="InkCanvas" Height="{Binding ActualHeight, ElementName=image, Mode=OneWay}" Width="{Binding ActualWidth, ElementName=image, Mode=OneWay}"  PointerEntered="InkCanvas_PointerEntered" PointerPressed="InkCanvas_PointerPressed" Background="#7F000000"/>
         </Canvas>
     </Grid>
 </Page>
