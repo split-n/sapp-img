@@ -46,6 +46,7 @@ namespace App2
 
         private EventHandler<object> layoutChanged;
         private uint paintingPointerId;
+        private Windows.UI.Xaml.Shapes.Path path;
 
         public MainPage()
         {
@@ -121,6 +122,15 @@ namespace App2
             if (pt.Properties.IsRightButtonPressed) return;
             prevPoint = pt.Position;
             paintingPointerId = pt.PointerId;
+            path = new Windows.UI.Xaml.Shapes.Path() {
+                Data = new PathGeometry(),
+                Stroke = new SolidColorBrush(Windows.UI.Colors.Blue),
+                StrokeStartLineCap = PenLineCap.Round,
+                StrokeThickness = 8.5
+                
+            };
+            ((PathGeometry)path.Data).Figures.Add(new PathFigure{StartPoint = pt.Position});
+            InkCanvas.Children.Add(path);
             e.Handled = true;
 
         }
@@ -152,17 +162,9 @@ namespace App2
                 var currPoint = pt.Position;
                 if (prevPoint != currPoint)
                 {
-                    var line = new Line {
-                        X1 = prevPoint.X,
-                        Y1 = prevPoint.Y,
-                        X2 = currPoint.X,
-                        Y2 = currPoint.Y,
-                        StrokeThickness = 7.0,
-                        StrokeStartLineCap = PenLineCap.Round,
-                        Stroke = new SolidColorBrush(Windows.UI.Colors.Red)
-                    };
+                    var geo = (PathGeometry) path.Data;
+                    geo.Figures.First().Segments.Add(new LineSegment{Point = currPoint});
 
-                    InkCanvas.Children.Add(line);
                     prevPoint = currPoint;
 
                     e.Handled = true;
@@ -178,6 +180,10 @@ namespace App2
 
         private async void Button_Tapped(object sender, TappedRoutedEventArgs e)
         {
+            var imgSrc = (BitmapImage)image.Source;
+            InkCanvas.Width = imgSrc.PixelWidth*5;
+            InkCanvas.Height = imgSrc.PixelHeight*5;
+
             RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap();
             await renderTargetBitmap.RenderAsync(this.InkCanvas);
             
@@ -216,6 +222,8 @@ namespace App2
 
                 await encoder.FlushAsync();
             }
+
+            imageAndCanvasSizeAdjust();
         }
     }
 }
