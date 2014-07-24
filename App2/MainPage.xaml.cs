@@ -35,6 +35,8 @@ namespace App2
             get { return this.navigationHelper; }
         }
 
+        private Point prevPoint;
+
 
         public MainPage()
         {
